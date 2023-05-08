@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'About.dart';
-import 'HomePage.dart';
+import 'ProfilePage.dart';
 import 'Login.dart';
 
 class Services extends StatefulWidget {
@@ -8,7 +8,6 @@ class Services extends StatefulWidget {
   _ServicesState createState() => _ServicesState();
 }
 
-final List<String> entries = <String>['A', 'B', 'C'];
 
 class _ServicesState extends State<Services> {
   @override
@@ -133,17 +132,7 @@ class _ServicesState extends State<Services> {
               ),
               ListTile(
                 leading: Icon(
-                  Icons.home,
-                ),
-                title: const Text('Página Inicial'),
-                onTap: () {
-                  Navigator.push(
-                      context, MaterialPageRoute(builder: (_) => HomePage()));
-                },
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.home,
+                  Icons.work,
                 ),
                 title: const Text('Serviços'),
                 onTap: () {
@@ -153,7 +142,17 @@ class _ServicesState extends State<Services> {
               ),
               ListTile(
                 leading: Icon(
-                  Icons.train,
+                  Icons.person,
+                ),
+                title: const Text('Perfil'),
+                onTap: () {
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (_) => ProfilePage()));
+                },
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.question_mark,
                 ),
                 title: const Text('Sobre'),
                 onTap: () {

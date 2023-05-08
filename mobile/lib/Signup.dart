@@ -1,12 +1,51 @@
 import 'package:flutter/material.dart';
-import 'Login.dart';
+import 'package:http/http.dart' as http;
+import 'package:outdoor/Validators.dart';
+import 'package:outdoor/Login.dart';
+import 'dart:convert';
 
+const urlPrefix = 'https://localhost:7221';
 class SignupDemo extends StatefulWidget {
+
+  const SignupDemo({super.key});
   @override
-  _SignupDemoState createState() => _SignupDemoState();
+  SignupDemoState createState() => SignupDemoState();
 }
 
-class _SignupDemoState extends State<SignupDemo> {
+Future<void> makePostRequest(String nome, String email, String senha, context) async {
+  final url = Uri.parse('$urlPrefix/api/users');
+  final headers = {"Content-type": "application/json"};
+  final json = '{"name": "$nome", "password": "$senha", "email": "$email", "userType": "client"}';
+  final response = await http.post(url, headers: headers, body: json);
+  if (response.statusCode == 201){
+    Navigator.push(
+        context, MaterialPageRoute(builder: (_) => LoginDemo()));
+  }else{
+    throw Exception(response.body);
+  }
+}
+
+class SignupDemoState extends State<SignupDemo> {
+  final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+  final TextEditingController _password = TextEditingController();
+  final TextEditingController _passwordCheck = TextEditingController();
+  final TextEditingController _email = TextEditingController();
+  final TextEditingController _nome = TextEditingController();
+
+  String _name = '';
+  String _email_str = '';
+  String _password_str = '';
+  String _password_check_str = '';
+
+  @override
+  void dispose() {
+    _password.dispose();
+    _passwordCheck.dispose();
+    _email.dispose();
+    _nome.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,12 +54,14 @@ class _SignupDemoState extends State<SignupDemo> {
         leading: BackButton(
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text("Tela da Cadastro"),
-        backgroundColor: Color.fromRGBO(134, 19, 194, 100),
+        title: const Text("Tela da Cadastro"),
+        backgroundColor: const Color.fromRGBO(134, 19, 194, 100),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
+        child: Form(
+          key: _formkey,
+          child: Column(
+            children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(top: 60.0),
               child: Center(
@@ -37,12 +78,22 @@ class _SignupDemoState extends State<SignupDemo> {
               padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
               //padding: EdgeInsets.symmetric(horizontal: 15),
-              child: TextField(
-
-                obscureText: true,
-                decoration: InputDecoration(
+              child: TextFormField(
+                controller: _nome,
+                obscureText: false,
+                  validator: (text) {
+                    if (text == null || text.isEmpty) {
+                      return 'Esse campo é obrigatório';
+                    }
+                    if (text.length < 4) {
+                      return 'Tamanho mínimo 4 letras.';
+                    }
+                    return null;
+                  },
+                  onChanged: (text) => setState(() => _name = text),
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Nome',
+                    labelText: 'Nome *',
                     hintText: 'Informe seu nome'),
               ),
             ),
@@ -50,12 +101,25 @@ class _SignupDemoState extends State<SignupDemo> {
               padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
               //padding: EdgeInsets.symmetric(horizontal: 15),
-              child: TextField(
+              child: TextFormField(
+                obscureText: false,
+                controller: _email,
+                keyboardType: TextInputType.emailAddress,
+                validator: (String? value){
+                  final emailRegExp = RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
 
-                obscureText: true,
-                decoration: InputDecoration(
+                  if(value == null || value.isEmpty)
+                  {
+                    return 'Esse campo é obrigatório';
+                  }
+                  else if(!emailRegExp.hasMatch(value)){
+                    return 'Favor inserir um email válido.';
+                  }
+                  return null;
+                },
+                decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Email',
+                    labelText: 'Email *',
                     hintText: 'Informe um email valido: abc@abc.com'),
               ),
             ),
@@ -63,12 +127,21 @@ class _SignupDemoState extends State<SignupDemo> {
               padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
               //padding: EdgeInsets.symmetric(horizontal: 15),
-              child: TextField(
-
+              child: TextFormField(
+                controller: _password,
+                validator: (String? value){
+                  if(value == null || value.isEmpty)
+                  {
+                    return 'Esse campo é obrigatório';
+                  }if (value.length < 6) {
+                    return 'Senha deve conter no mínimo 6 caracteres.';
+                  }
+                  return null;
+                },
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Senha',
+                    labelText: 'Senha *',
                     hintText: 'Sua senha de acesso'),
               ),
             ),
@@ -76,33 +149,47 @@ class _SignupDemoState extends State<SignupDemo> {
               padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
               //padding: EdgeInsets.symmetric(horizontal: 15),
-              child: TextField(
-
+              child: TextFormField(
+                controller: _passwordCheck,
                 obscureText: true,
-                decoration: InputDecoration(
+                keyboardType: TextInputType.text,
+                validator: (String? value){
+                  if(value == null || value.isEmpty)
+                  {
+                    return 'Esse campo é obrigatório';
+                  }
+                  if(_passwordCheck.text!=_password.text){
+                    return "Senhas não são iguais";
+                  }
+                  return null;
+                },
+                decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Confirmar senha',
+                    labelText: 'Confirmar senha *',
                     hintText: 'Repita sua senha de acesso'),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Container(
               height: 50,
               width: 250,
               decoration: BoxDecoration(
-                  color: Color.fromRGBO(134, 19, 194, 100), borderRadius: BorderRadius.circular(20)),
-              child: TextButton(
+                  color: const Color.fromRGBO(134, 19, 194, 100), borderRadius: BorderRadius.circular(20)),
+              child: ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                      context, MaterialPageRoute(builder: (_) => LoginDemo()));
+                  if(_formkey.currentState!.validate()){
+                    makePostRequest(_nome.text, _email.text, _password.text, context).catchError((error) => 'Erro Cadastro: $error');
+
+                  }
                 },
-                child: Text(
+                child: const Text(
                   'Confirmar Cadastro',
                   style: TextStyle(color: Colors.white, fontSize: 25),
                 ),
               ),
             ),
           ],
+      ),
         ),
       ),
     );
