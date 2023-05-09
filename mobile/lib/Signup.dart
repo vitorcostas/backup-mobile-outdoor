@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:outdoor/DataBaseHelper.dart';
 import 'package:outdoor/Validators.dart';
 import 'package:outdoor/Login.dart';
 import 'dart:convert';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 const urlPrefix = 'https://localhost:7221';
 class SignupDemo extends StatefulWidget {
@@ -12,17 +15,29 @@ class SignupDemo extends StatefulWidget {
   SignupDemoState createState() => SignupDemoState();
 }
 
-Future<void> makePostRequest(String nome, String email, String senha, context) async {
+Future<void> makePostRequest(String nome, String email, String senha, context, DatabaseHelper instance) async {
   final url = Uri.parse('$urlPrefix/api/users');
   final headers = {"Content-type": "application/json"};
-  final json = '{"name": "$nome", "password": "$senha", "email": "$email", "userType": "client"}';
-  final response = await http.post(url, headers: headers, body: json);
-  if (response.statusCode == 201){
-    Navigator.push(
-        context, MaterialPageRoute(builder: (_) => LoginDemo()));
-  }else{
-    throw Exception(response.body);
-  }
+  final senhaCriptografada = _textToMd5(senha);
+
+  Map<String, dynamic> row = {
+    "Name": nome,
+    "Password": senhaCriptografada,
+    "Email": email,
+    "UserType": "client"
+  };
+  final id = await instance.insert(row, "User");
+  print('linha inserida id: $id');
+  Navigator.push(
+      context, MaterialPageRoute(builder: (_) => LoginDemo()));
+
+  //final response = await http.post(url, headers: headers, body: json);
+  //if (response.statusCode == 201){
+  //  Navigator.push(
+  //      context, MaterialPageRoute(builder: (_) => LoginDemo()));
+  //}else{
+  //  throw Exception(response.body);
+  //}
 }
 
 class SignupDemoState extends State<SignupDemo> {
@@ -31,11 +46,7 @@ class SignupDemoState extends State<SignupDemo> {
   final TextEditingController _passwordCheck = TextEditingController();
   final TextEditingController _email = TextEditingController();
   final TextEditingController _nome = TextEditingController();
-
-  String _name = '';
-  String _email_str = '';
-  String _password_str = '';
-  String _password_check_str = '';
+  final dbHelper = DatabaseHelper.instance;
 
   @override
   void dispose() {
@@ -90,7 +101,7 @@ class SignupDemoState extends State<SignupDemo> {
                     }
                     return null;
                   },
-                  onChanged: (text) => setState(() => _name = text),
+                  //onChanged: (text) => setState(() => _name = text),
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Nome *',
@@ -178,7 +189,7 @@ class SignupDemoState extends State<SignupDemo> {
               child: ElevatedButton(
                 onPressed: () {
                   if(_formkey.currentState!.validate()){
-                    makePostRequest(_nome.text, _email.text, _password.text, context).catchError((error) => 'Erro Cadastro: $error');
+                    makePostRequest(_nome.text, _email.text, _password.text, context, dbHelper).catchError((error) => 'Erro Cadastro: $error');
 
                   }
                 },
@@ -194,4 +205,13 @@ class SignupDemoState extends State<SignupDemo> {
       ),
     );
   }
+}
+
+
+String _textToMd5 (String text) {
+  return md5.convert(utf8.encode(text)).toString();
+}
+
+void _inserInto(Map<String, dynamic> row,String table){
+
 }

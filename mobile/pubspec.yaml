@@ -38,6 +38,9 @@ dependencies:
   flutter_about_page: ^0.0.1
   profile: ^0.0.1
   shared_preferences: ^2.1.0
+  sqflite: ^2.2.8+1
+  path_provider: ^2.0.14
+  encrypt: ^5.0.1
 
 dev_dependencies:
   flutter_test:
