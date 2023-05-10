@@ -18,7 +18,7 @@ class SignupDemo extends StatefulWidget {
 Future<void> makePostRequest(String nome, String email, String senha, context, DatabaseHelper instance) async {
   final url = Uri.parse('$urlPrefix/api/users');
   final headers = {"Content-type": "application/json"};
-  final senhaCriptografada = _textToMd5(senha);
+  final senhaCriptografada = textToMd5(senha);
 
   Map<String, dynamic> row = {
     "Name": nome,
@@ -182,9 +182,7 @@ class SignupDemoState extends State<SignupDemo> {
             ),
             const SizedBox(height: 16),
             Container(
-              height: 50,
-              width: 250,
-              decoration: BoxDecoration(
+              height: 50, decoration: BoxDecoration(
                   color: const Color.fromRGBO(134, 19, 194, 100), borderRadius: BorderRadius.circular(20)),
               child: ElevatedButton(
                 onPressed: () {
@@ -208,7 +206,7 @@ class SignupDemoState extends State<SignupDemo> {
 }
 
 
-String _textToMd5 (String text) {
+String textToMd5 (String text) {
   return md5.convert(utf8.encode(text)).toString();
 }
 

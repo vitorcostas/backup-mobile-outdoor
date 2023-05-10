@@ -38,7 +38,7 @@ class DatabaseHelper {
           CREATE TABLE User (
             Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             Name TEXT NOT NULL,
-            Email text NOT NULL,
+            Email text NOT NULL unique,
             Password text not null,
             UserType text not null            
           )
@@ -59,6 +59,16 @@ class DatabaseHelper {
     Database? db = await instance.database;
     return await db!.query(table);
   }
+
+  Future<List<Map<String, dynamic>>> queryUserByEmail(String email) async {
+    Database? db = await instance.database;
+    return await db!.query(
+      "User",
+      where: "Email = ?",
+      whereArgs: [email]
+    );
+  }
+
   // Todos os métodos : inserir, consultar, atualizar e excluir,
   // também podem ser feitos usando  comandos SQL brutos.
   // Esse método usa uma consulta bruta para fornecer a contagem de linhas.

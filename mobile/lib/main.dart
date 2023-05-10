@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'Login.dart';
+import 'SharedPreferenceClass.dart';
 
 void main() {
+  final spHelper = SharedPreference.instance;
+  spHelper.sharedPreferences;
   runApp(const MyApp());
 }
 

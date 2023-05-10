@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:outdoor/DataBaseHelper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Services.dart';
 import 'Signup.dart';
 import 'package:http/http.dart' as http;
 import 'package:outdoor/User.dart';
-import 'package:outdoor/SharedPreferences.dart';
+import 'package:outdoor/SharedPreferenceClass.dart';
 import 'globals.dart';
+import 'Signup.dart';
 
 const urlPrefix = 'https://localhost:7221';
 class LoginDemo extends StatefulWidget {
@@ -13,35 +16,49 @@ class LoginDemo extends StatefulWidget {
   _LoginDemoState createState() => _LoginDemoState();
 }
 
-Future<void> _Login(String email, String senha, context) async {
-  final url = Uri.parse('$urlPrefix/api/users/login');
-  final headers = {"Content-type": "application/json"};
-  final json = '{"password": "$senha", "email": "$email"}';
-  final response = await http.post(url, headers: headers, body: json);
-  if (response.statusCode == 200){
+Future<void> _Login(String email, String senha, context, SharedPreference spHelper) async {
+  //final url = Uri.parse('$urlPrefix/api/users/login');
+  //final headers = {"Content-type": "application/json"};
+  //final json = '{"password": "$senha", "email": "$email"}';
+  final dbHelper = DatabaseHelper.instance;
+  //final response = await http.post(url, head ers: headers, body: json);
+  //if (response.statusCode == 200){
 
-    Map<String, dynamic> value = jsonDecode(response.body);
-    User usuario = User.fromJson(value);
+  final senhaCriptografada = textToMd5(senha);
 
-    usuario_global = usuario;
+  List<Map<String, dynamic>> response = await dbHelper.queryUserByEmail(email);
 
-    SharedPreference().addStringToSF('id', usuario.id);
-    SharedPreference().addStringToSF('email', usuario.email);
-    SharedPreference().addStringToSF('userType', usuario.userType);
-    SharedPreference().addStringToSF('name', usuario.name);
-    SharedPreference().addBoolToSF('login', true);
+  print(response);
 
+  Map<String, dynamic> value = response[0];
+  //User usuario = User.fromJson(value);
+
+  //usuario_global = usuario;
+  print(value['Password'] == senhaCriptografada);
+  if (value['Password'] == senhaCriptografada){
+    SharedPreferences teste = await SharedPreferences.getInstance();
+    spHelper.addStringToSF("Id", value["Id"].toString());
+    spHelper.addStringToSF('Email', value["Email"]);
+    spHelper.addStringToSF('UserType', value["UserType"]);
+    spHelper.addStringToSF('Name', value["Name"]);
+    spHelper.addBoolToSF('Login', true);
     Navigator.push(
         context, MaterialPageRoute(builder: (_) => Services()));
   }else{
-    throw Exception(response.body);
+    throw Exception('Senha ou email inválidos');
   }
+
+  //}
+  //else{
+  //  throw Exception(response.body);
+  //}
 }
 
 class _LoginDemoState extends State<LoginDemo> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _email = TextEditingController();
+  final spHelper = SharedPreference.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +149,7 @@ class _LoginDemoState extends State<LoginDemo> {
               child: ElevatedButton(
                 onPressed: () {
                   if(_formkey.currentState!.validate()){
-                    _Login(_email.text, _password.text, context).catchError((error) => 'Erro Cadastro: $error');
+                    _Login(_email.text, _password.text, context, spHelper).catchError((error) => 'Erro Cadastro: $error');
                   }
                   // Navigator.push(
                   //     context, MaterialPageRoute(builder: (_) => Services()));

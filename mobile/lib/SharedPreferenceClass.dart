@@ -3,64 +3,80 @@ import 'dart:async';
 
 class SharedPreference {
 
+  SharedPreference._privateConstructor();
+  static final SharedPreference instance = SharedPreference._privateConstructor();
+  static SharedPreferences? _sharedPreferences;
+
+  Future<SharedPreferences?> get sharedPreferences async {
+    if (_sharedPreferences != null) return _sharedPreferences;
+    // instancia o db na primeira vez que for acessado
+    _sharedPreferences = await SharedPreferences.getInstance();
+    return _sharedPreferences;
+  }
+
   addStringToSF(String variableName, String value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString(variableName, value);
+    SharedPreferences? prefs = await instance.sharedPreferences;
+    prefs!.setString(variableName, value);
   }
 
   addIntToSF(String variableName, int value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt(variableName, value);
+    SharedPreferences? prefs = await instance.sharedPreferences;
+    prefs!.setInt(variableName, value);
   }
 
   addDoubleToSF(String variableName, double value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setDouble(variableName, value);
+    SharedPreferences? prefs = await instance.sharedPreferences;
+    prefs!.setDouble(variableName, value);
   }
 
 
   addBoolToSF(String variableName, bool value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool(variableName, value);
+    SharedPreferences? prefs = await instance.sharedPreferences;
+
+    prefs!.setBool(variableName, value);
   }
 
   getStringValuesSF(String variable) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    //Return String
-    final String? stringValue = prefs.getString(variable);
+    SharedPreferences? prefs = await instance.sharedPreferences;
+    final String? stringValue = prefs!.getString(variable);
     return stringValue;
   }
 
   getBoolValuesSF(String variable) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences? prefs = await instance.sharedPreferences;
+
     //Return bool
-    final bool? boolValue = prefs.getBool(variable);
+    final bool? boolValue = prefs!.getBool(variable);
     return boolValue;
   }
 
   getIntValuesSF(String variable) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences? prefs = await instance.sharedPreferences;
+
     //Return int
-    final int? intValue = prefs.getInt(variable);
+    final int? intValue = prefs!.getInt(variable);
     return intValue;
   }
 
   getDoubleValuesSF(String variable) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences? prefs = await instance.sharedPreferences;
+
     //Return double
-    final double? doubleValue = prefs.getDouble(variable);
+    final double? doubleValue = prefs!.getDouble(variable);
     return doubleValue;
   }
 
   removeValue(String variable) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences? prefs = await instance.sharedPreferences;
+
     //Remove String
-    prefs.remove(variable);
+    prefs!.remove(variable);
   }
 
   checkVariable(String variable) async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool checkValue = prefs.containsKey(variable);
+    SharedPreferences? prefs = await instance.sharedPreferences;
+
+    bool checkValue = prefs!.containsKey(variable);
     return checkValue;
   }
 
