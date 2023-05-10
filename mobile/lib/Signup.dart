@@ -30,14 +30,6 @@ Future<void> makePostRequest(String nome, String email, String senha, context, D
   print('linha inserida id: $id');
   Navigator.push(
       context, MaterialPageRoute(builder: (_) => LoginDemo()));
-
-  //final response = await http.post(url, headers: headers, body: json);
-  //if (response.statusCode == 201){
-  //  Navigator.push(
-  //      context, MaterialPageRoute(builder: (_) => LoginDemo()));
-  //}else{
-  //  throw Exception(response.body);
-  //}
 }
 
 class SignupDemoState extends State<SignupDemo> {

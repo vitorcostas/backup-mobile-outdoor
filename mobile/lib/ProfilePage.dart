@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outdoor/EditUserData.dart';
 import 'package:profile/profile.dart';
 import 'About.dart';
 import 'DataBaseHelper.dart';
@@ -157,6 +158,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     const Text(
+                      textAlign: TextAlign.center,
                       'Experiencia em eletrica e manutenção',
                       style: TextStyle(
                         color: Colors.white,
@@ -221,7 +223,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                 ),
                                 subtitle: Text(
-                                  'Nota',
+                                  'Avaliações dos serviços',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 20,
@@ -234,7 +236,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                     );
-
               }else{
                 return const Center(
                   child: CircularProgressIndicator(),
@@ -321,10 +322,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             child: ElevatedButton(
                               onPressed: () {
                                 Navigator.push(
-                                    context, MaterialPageRoute(builder: (_) => Services()));
+                                    context, MaterialPageRoute(builder: (_) => EditUserData()));
                               },
                               child: const Text(
-                                'Adicionar Serviço',
+                                'Alterar dados do perfil',
                                 style: TextStyle(color: Colors.white, fontSize: 25),
                               ),
                             ),

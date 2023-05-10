@@ -10,10 +10,12 @@ class Services extends StatefulWidget {
 
 
 class _ServicesState extends State<Services> {
+
   @override
   Widget build(BuildContext context) {
     final title = 'Lista de Serviços';
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: title,
       home: Scaffold(
         appBar: AppBar(
