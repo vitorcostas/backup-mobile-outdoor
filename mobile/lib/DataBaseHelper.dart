@@ -80,7 +80,7 @@ class DatabaseHelper {
   // valores das colunas serão usados para atualizar a linha.
   Future<int> update(Map<String, dynamic> row, String table) async {
     Database? db = await instance.database;
-    int id = row[columnId];
+    int id = row["Id"];
     return await db!.update(table, row, where: 'Id = ?', whereArgs: [id]);
   }
   // Exclui a linha especificada pelo id. O número de linhas afetadas é

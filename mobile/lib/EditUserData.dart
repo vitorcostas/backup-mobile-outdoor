@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:outdoor/DataBaseHelper.dart';
 import 'package:outdoor/ProfilePage.dart';
-import 'package:outdoor/Signup.dart';
-import 'package:outdoor/Validators.dart';
-import 'package:outdoor/Login.dart';
-import 'dart:convert';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:dropdown_formfield/dropdown_formfield.dart';
 
 import 'SharedPreferenceClass.dart';
 
@@ -24,25 +20,31 @@ Future<void> putNewUserData(
     String email,
     String senha,
     context,
-    DatabaseHelper instance) async {
+    DatabaseHelper instance,
+    String? tipoUsuario) async {
   final url = Uri.parse('$urlPrefix/api/users');
   final headers = {"Content-type": "application/json"};
   final senhaCriptografada = textToMd5(senha);
   SharedPreference instancia = await SharedPreference.instance;
   final identificador = await instancia.getStringValuesSF("Id");
   final intId = int.parse(identificador);
+  print(tipoUsuario);
 
   Map<String, dynamic> row = {
     "Id": intId,
     "Name": nome,
     "Password": senhaCriptografada,
     "Email": email,
-    "UserType": "client"
+    "UserType": tipoUsuario
   };
+  print("MAPEADA A ROW");
   final id = await instance.update(row, "User");
+  print("Dados alterados");
 
-  instancia.addStringToSF('Email', email);
-  instancia.addStringToSF('Name', nome);
+  await instancia.addStringToSF('Email', email);
+  await instancia.addStringToSF('Name', nome);
+  await instancia.addStringToSF('UserType', tipoUsuario!);
+  print("Dados alterado");
 
   print('linha modificada id: $id');
   Navigator.push(
@@ -56,6 +58,7 @@ class EditUserDataState extends State<EditUserData> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _nome = TextEditingController();
   final dbHelper = DatabaseHelper.instance;
+  String? _myActivity;
 
   @override
   void dispose() {
@@ -64,6 +67,12 @@ class EditUserDataState extends State<EditUserData> {
     _email.dispose();
     _nome.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _myActivity = '';
   }
 
   @override
@@ -101,6 +110,39 @@ class EditUserDataState extends State<EditUserData> {
                               padding: const EdgeInsets.only(
                                   left: 15.0, right: 15.0, top: 15, bottom: 0),
                               //padding: EdgeInsets.symmetric(horizontal: 15),
+                              child: DropDownFormField(
+                                titleText: 'Tipo de usuário',
+                                hintText: 'Favor escolher um tipo',
+                                value: _myActivity,
+                                onSaved: (value) {
+                                  setState(() {
+                                    _myActivity = value;
+                                  });
+                                },
+                                onChanged: (value) {
+                                  setState(() {
+                                    _myActivity = value;
+                                  });
+                                },
+                                dataSource: const [
+                                  {
+                                    "display": "Cliente",
+                                    "value": "client",
+                                  },
+                                  {
+                                    "display": "Prestador de Serviço",
+                                    "value": "provider",
+                                  },
+                                ],
+                                textField: 'display',
+                                valueField: 'value',
+                              ),
+
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 15.0, right: 15.0, top: 15, bottom: 0),
+                              //padding: EdgeInsets.symmetric(horizontal: 15),
                               child: TextFormField(
                                 // initialValue: snapshot.data!['Name'],
                                 controller: _nome,
@@ -114,7 +156,6 @@ class EditUserDataState extends State<EditUserData> {
                                   }
                                   return null;
                                 },
-                                onChanged: (text) => setState(() => _nome.text = text),
 
                                 decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
@@ -201,7 +242,7 @@ class EditUserDataState extends State<EditUserData> {
                               child: ElevatedButton(
                                 onPressed: () {
                                   if(_formkey.currentState!.validate()){
-                                    putNewUserData(_nome.text, _email.text, _password.text, context, dbHelper).catchError((error) => 'Erro Cadastro: $error');
+                                    putNewUserData(_nome.text, _email.text, _password.text, context, dbHelper, _myActivity).catchError((error) => 'Erro Cadastro: $error');
 
                                   }
                                 },

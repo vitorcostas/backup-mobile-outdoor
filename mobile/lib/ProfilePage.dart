@@ -15,33 +15,30 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
-  //final name = SharedPreference().getStringValuesSF('name');
-  //final email = SharedPreference().getStringValuesSF('email');
-  //final userType = SharedPreference().getStringValuesSF('userType');
+Future<void> deleteDadosUsuario(
+    DatabaseHelper instance,
+    context) async {
+  // final url = Uri.parse('$urlPrefix/api/users');
+  // final headers = {"Content-type": "application/json"};
+  SharedPreference instancia = await SharedPreference.instance;
+  final identificador = await instancia.getStringValuesSF("Id");
+  final intId = int.parse(identificador);
+  instance.delete(intId, 'User');
 
-  // void teste() async{
-  //
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   name = prefs.getString('name') ?? '';
-  //   // Future name = SharedPreferences().getStringValuesSF('name');
-  //   // name.then((data) async {
-  //   //   nameStr = data;
-  //   // });
-  //
-  //   email = prefs.getString('email') ?? '';
-  //   // Future email= SharedPreference().getStringValuesSF('email');
-  //   // email.then((data) async {
-  //   //   emailStr = data;
-  //   // });
-  //
-  //   userType = prefs.getString('userType') ?? '';
-  //
-  //   // Future userType= SharedPreference().getStringValuesSF('userType');
-  //   // userType.then((data) async {
-  //   //   userTypeStr = data;
-  //   // });
-  // }
+  await instancia.removeValue('Email');
+  await instancia.removeValue('Name');
+  await instancia.removeValue('UserType');
+  await instancia.removeValue('Id');
+  await instancia.addBoolToSF('Login', false);
+
+  print("Dados alterado");
+
+  Navigator.push(
+      context, MaterialPageRoute(builder: (_) => LoginDemo()));
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final dbHelper = DatabaseHelper.instance;
   @override
   Widget build(BuildContext context) {
 
@@ -300,7 +297,26 @@ class _ProfilePageState extends State<ProfilePage> {
                             fontSize: 18,
                           ),
                         ),
-                      )]);
+                      ),
+                      const Divider(),
+                       ListTile(
+                        title: const Text(
+                          'Tipo de perfil',
+                          style: TextStyle(
+                            color: Colors.deepPurple,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text(
+                          snapshot.data!['UserType'],
+                          style: const TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
+                      )
+                    ]
+                  );
               }else{
                 return const Center(
                   child: CircularProgressIndicator(),
@@ -314,9 +330,11 @@ class _ProfilePageState extends State<ProfilePage> {
               List<Widget> children;
               if (snapshot.hasData){
                 return
+                  Column(
+                    children: <Widget>[
                   Container(
                             height: 50,
-                            width: 250,
+
                             decoration: BoxDecoration(
                                 color: const Color.fromRGBO(134, 19, 194, 100), borderRadius: BorderRadius.circular(20)),
                             child: ElevatedButton(
@@ -329,7 +347,27 @@ class _ProfilePageState extends State<ProfilePage> {
                                 style: TextStyle(color: Colors.white, fontSize: 25),
                               ),
                             ),
-                          );
+                          ),
+                      Container(
+                        margin: const EdgeInsets.only(top: 20.0, bottom: 15.0),
+                        height: 50,
+                        decoration: BoxDecoration(
+                            color: Colors.red, borderRadius: BorderRadius.circular(20)),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.red, // Background color
+                          ),
+                          onPressed: () {
+                            deleteDadosUsuario(dbHelper, context);
+                          },
+                          child: const Text(
+                            'Excluir perfil',
+                            style: TextStyle(color: Colors.white, fontSize: 25),
+                          ),
+                        ),
+                      ),
+                    ],
+              );
               }else{
                 return const Center(
                   child: CircularProgressIndicator(),
@@ -350,10 +388,19 @@ Future<Map<String, dynamic>> getSharedPreferences() async{
   final name = await prefs.getStringValuesSF("Name");
   final email = await prefs.getStringValuesSF("Email");
   final id = await prefs.getStringValuesSF("Id");
+  final userType = await prefs.getStringValuesSF("UserType");
+  String user;
+  if (userType == 'client'){
+    user = 'Cliente';
+  }else{
+    user = 'Prestador de serviços';
+  }
+
   Map<String, dynamic> value = {
     "Name": name,
     "Email": email,
-    "Id": id
+    "Id": id,
+    "UserType": user
   };
   return value;
 }

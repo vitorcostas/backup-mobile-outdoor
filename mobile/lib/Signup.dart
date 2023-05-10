@@ -6,6 +6,7 @@ import 'package:outdoor/Login.dart';
 import 'dart:convert';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:dropdown_formfield/dropdown_formfield.dart';
 
 const urlPrefix = 'https://localhost:7221';
 class SignupDemo extends StatefulWidget {
@@ -15,7 +16,13 @@ class SignupDemo extends StatefulWidget {
   SignupDemoState createState() => SignupDemoState();
 }
 
-Future<void> makePostRequest(String nome, String email, String senha, context, DatabaseHelper instance) async {
+Future<void> makePostRequest(
+    String nome,
+    String email,
+    String senha,
+    context,
+    DatabaseHelper instance,
+    String? _myActivity) async {
   final url = Uri.parse('$urlPrefix/api/users');
   final headers = {"Content-type": "application/json"};
   final senhaCriptografada = textToMd5(senha);
@@ -24,8 +31,9 @@ Future<void> makePostRequest(String nome, String email, String senha, context, D
     "Name": nome,
     "Password": senhaCriptografada,
     "Email": email,
-    "UserType": "client"
+    "UserType": _myActivity
   };
+
   final id = await instance.insert(row, "User");
   print('linha inserida id: $id');
   Navigator.push(
@@ -39,6 +47,7 @@ class SignupDemoState extends State<SignupDemo> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _nome = TextEditingController();
   final dbHelper = DatabaseHelper.instance;
+  String? _myActivity;
 
   @override
   void dispose() {
@@ -47,6 +56,12 @@ class SignupDemoState extends State<SignupDemo> {
     _email.dispose();
     _nome.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _myActivity = '';
   }
 
   @override
@@ -77,6 +92,45 @@ class SignupDemoState extends State<SignupDemo> {
                     child: Image.asset('assets/images/logo.png')),
               ),
             ),
+              Padding(
+                padding: const EdgeInsets.only(
+                    left: 15.0, right: 15.0, top: 15, bottom: 0),
+                //padding: EdgeInsets.symmetric(horizontal: 15),
+                child: DropDownFormField(
+                  titleText: 'Tipo de usuário',
+                  hintText: 'Favor escolher um tipo',
+                  value: _myActivity,
+                  validator: (text) {
+                    if (text == null || text.isEmpty) {
+                      return 'Esse campo é obrigatório';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    setState(() {
+                      _myActivity = value;
+                    });
+                  },
+                  onChanged: (value) {
+                    setState(() {
+                      _myActivity = value;
+                    });
+                  },
+                  dataSource: const [
+                    {
+                      "display": "Cliente",
+                      "value": "client",
+                    },
+                    {
+                      "display": "Prestador de Serviço",
+                      "value": "provider",
+                    },
+                  ],
+                  textField: 'display',
+                  valueField: 'value',
+                ),
+
+              ),
             Padding(
               padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
@@ -179,7 +233,7 @@ class SignupDemoState extends State<SignupDemo> {
               child: ElevatedButton(
                 onPressed: () {
                   if(_formkey.currentState!.validate()){
-                    makePostRequest(_nome.text, _email.text, _password.text, context, dbHelper).catchError((error) => 'Erro Cadastro: $error');
+                    makePostRequest(_nome.text, _email.text, _password.text, context, dbHelper, _myActivity).catchError((error) => 'Erro Cadastro: $error');
 
                   }
                 },
