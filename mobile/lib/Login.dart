@@ -16,7 +16,7 @@ class LoginDemo extends StatefulWidget {
   _LoginDemoState createState() => _LoginDemoState();
 }
 
-Future<void> _Login(String email, String senha, context, SharedPreference spHelper) async {
+Future<String?> _Login(String email, String senha, context, SharedPreference spHelper) async {
   //final url = Uri.parse('$urlPrefix/api/users/login');
   //final headers = {"Content-type": "application/json"};
   //final json = '{"password": "$senha", "email": "$email"}';
@@ -45,7 +45,7 @@ Future<void> _Login(String email, String senha, context, SharedPreference spHelp
     Navigator.push(
         context, MaterialPageRoute(builder: (_) => Services()));
   }else{
-    throw Exception('Senha ou email inválidos');
+    _showMyDialog(context);
   }
 
   //}
@@ -150,6 +150,7 @@ class _LoginDemoState extends State<LoginDemo> {
                 onPressed: () {
                   if(_formkey.currentState!.validate()){
                     _Login(_email.text, _password.text, context, spHelper).catchError((error) => 'Erro Cadastro: $error');
+
                   }
                   // Navigator.push(
                   //     context, MaterialPageRoute(builder: (_) => Services()));
@@ -168,7 +169,7 @@ class _LoginDemoState extends State<LoginDemo> {
               width: 250,
               decoration: BoxDecoration(
                   color: const Color.fromRGBO(134, 19, 194, 100), borderRadius: BorderRadius.circular(20)),
-              child: TextButton(
+              child: ElevatedButton(
                 onPressed: () {
                   Navigator.push(
                       context, MaterialPageRoute(builder: (_) => SignupDemo()));
@@ -185,4 +186,31 @@ class _LoginDemoState extends State<LoginDemo> {
       ),
     );
   }
+}
+
+Future<void> _showMyDialog(context) async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false, // user must tap button!
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Alerta'),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Text('Senha ou email incorretos'),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Sair'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
 }
