@@ -10,7 +10,7 @@ import 'package:outdoor/SharedPreferenceClass.dart';
 import 'globals.dart';
 import 'Signup.dart';
 
-const urlPrefix = 'https://localhost:7221';
+// const urlPrefix = 'https://localhost:7221';
 class LoginDemo extends StatefulWidget {
   @override
   _LoginDemoState createState() => _LoginDemoState();

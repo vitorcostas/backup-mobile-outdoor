@@ -1,3 +1,5 @@
+import 'dart:core';
+
 import 'package:flutter/material.dart';
 import 'package:outdoor/EditUserData.dart';
 import 'package:profile/profile.dart';
